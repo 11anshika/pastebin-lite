@@ -1,8 +1,11 @@
 import kv from '@/lib/kv';
 import { notFound } from 'next/navigation';
 
-export default async function Page({ params }: { params: { id: string } }) {
-  const key = `paste:${params.id}`;
+// Update the type here as well
+export default async function Page({ params }: { params: Promise<{ id: string }> }) {
+  // Await the params
+  const { id } = await params;
+  const key = `paste:${id}`;
   
   const current_views = await kv.hincrby(key, "current_views", 1);
   const paste: any = await kv.hgetall(key);
@@ -16,7 +19,6 @@ export default async function Page({ params }: { params: { id: string } }) {
 
   return (
     <div className="max-w-4xl mx-auto p-10">
-      <h1 className="text-xl font-bold mb-4">View Paste</h1>
       <pre className="p-6 bg-slate-100 rounded-lg overflow-auto border whitespace-pre-wrap">
         {paste.content}
       </pre>

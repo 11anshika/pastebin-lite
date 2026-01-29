@@ -1,12 +1,16 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import kv from '@/lib/kv';
 import { getNow } from '@/lib/time';
 
-export async function GET(req: Request, { params }: { params: { id: string } }) {
-  const { id } = params;
+// 1. Notice the 'context' type has changed to a Promise
+export async function GET(
+  req: NextRequest, 
+  { params }: { params: Promise<{ id: string }> } 
+) {
+  // 2. You MUST await params before using id
+  const { id } = await params;
   const key = `paste:${id}`;
 
-  // 1. Increment views FIRST
   const current_views = await kv.hincrby(key, "current_views", 1);
   const paste: any = await kv.hgetall(key);
 
